@@ -1,0 +1,30 @@
+import numpy as np
+#import matplotlib.pyplot as plt
+
+def sigmoid(z):
+    return 1 / (1 + np.exp(-z))
+
+def sigmoid_derivative(z):
+  s=sigmoid(z)
+  return s * (1 - s)
+
+total_layers=10
+input_size=1
+hidden_size=1
+
+weights=[]
+bias=[]
+
+for i in range(total_layers):
+  w=np.random.randn(hidden_size,hidden_size)*1
+  b=np.random.randn(hidden_size,1)*1
+
+  if i==0:
+    w=np.random.randn(hidden_size,input_size)*1
+    b=np.random.randn(hidden_size,1)*1
+
+  # stores the w and b at the last as the loop runs
+  weights.append(w)
+  bias.append(b)
+
+print(f"A deep NN created with {total_layers} layers.")
