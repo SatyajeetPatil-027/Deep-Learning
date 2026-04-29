@@ -1,0 +1,296 @@
+***Training a base mlp model***
+
+
+
+#import tensorflow
+import tensorflow as tf
+from tensorflow.keras.datasets import mnist
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Flatten
+from tensorflow.keras.utils import to_categorical
+import matplotlib.pyplot as plt
+
+#load mnist dataset
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+
+#normalize data
+x_train = x_train / 255.0
+x_test = x_test / 255.0
+
+#convert class labels to vectors
+y_train=to_categorical(y_train,10)
+y_test=to_categorical(y_test,10)
+
+#baseline mlp model
+model = Sequential([
+    Flatten(input_shape=(28, 28)),
+    Dense(128, activation='relu',input_shape=784),
+    Dense(64, activation='relu',input_shape=512),
+    Dense(10, activation='softmax')
+])
+model.compile(
+    optimizer='adam',
+    loss='categorical_crossentropy',
+    metrics=['accuracy']
+)
+
+#train model
+history = model.fit(
+    x_train, y_train,
+    epochs=20,
+    batch_size=128,
+    validation_split=0.2
+)
+
+#test the model
+test_loss, test_accuracy = model.evaluate(x_test, y_test)
+print("Test Accuracy:", test_accuracy)
+
+#plot the graph
+plt.plot(history.history['accuracy'], label='Training Accuracy')
+plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
+plt.xlabel('Epochs')
+plt.ylabel('Accuracy')
+plt.legend()
+plt.show()
+
+
+***Effect of dropout on overfitting***
+
+#import tensorflow
+import tensorflow as tf
+from tensorflow.keras.datasets import mnist
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Flatten
+from tensorflow.keras.utils import to_categorical
+import matplotlib.pyplot as plt
+#import dropout
+from tensorflow.keras.layers import Dropout
+
+#load mnist dataset
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+
+#normalize data
+x_train = x_train / 255.0
+x_test = x_test / 255.0
+
+#convert class labels to vectors
+y_train=to_categorical(y_train,10)
+y_test=to_categorical(y_test,10)
+
+#baseline mlp model
+model = Sequential([
+    Flatten(input_shape=(28, 28)),
+    Dense(128, activation='relu',input_shape=784),
+    Dropout(0.5),
+    Dense(64, activation='relu',input_shape=512),
+    Dropout(0.5),
+    Dense(10, activation='softmax')
+])
+model.compile(
+    optimizer='adam',
+    loss='categorical_crossentropy',
+    metrics=['accuracy']
+)
+
+#train model
+history = model.fit(
+    x_train, y_train,
+    epochs=20,
+    batch_size=128,
+    validation_split=0.2
+)
+
+#test the model
+test_loss, test_accuracy = model.evaluate(x_test, y_test)
+print("Test Accuracy:", test_accuracy)
+
+#plot the graph
+plt.plot(history.history['accuracy'], label='Training Accuracy')
+plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
+plt.xlabel('Epochs')
+plt.ylabel('Accuracy')
+plt.legend()
+plt.show()
+
+
+***Effect of L2 regularization on overfitting***
+
+#import tensorflow
+import tensorflow as tf
+from tensorflow.keras.datasets import mnist
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Flatten
+from tensorflow.keras.utils import to_categorical
+import matplotlib.pyplot as plt
+#import regularizers
+from tensorflow.keras.regularizers import l2
+
+#load mnist dataset
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+
+#normalize data
+x_train = x_train / 255.0
+x_test = x_test / 255.0
+
+#convert class labels to vectors
+y_train=to_categorical(y_train,10)
+y_test=to_categorical(y_test,10)
+
+#baseline mlp model
+model = Sequential([
+    Flatten(input_shape=(28, 28)),
+    Dense(128, activation='relu',input_shape=784,kernel_regularizer=l2(0.001)),
+    Dense(64, activation='relu',input_shape=512,kernel_regularizer=l2(0.001)),
+
+    Dense(10, activation='softmax')
+])
+model.compile(
+    optimizer='adam',
+    loss='categorical_crossentropy',
+    metrics=['accuracy']
+)
+
+#train model
+history = model.fit(
+    x_train, y_train,
+    epochs=20,
+    batch_size=128,
+    validation_split=0.2
+)
+
+#test the model
+test_loss, test_accuracy = model.evaluate(x_test, y_test)
+print("Test Accuracy:", test_accuracy)
+
+#plot the graph
+plt.plot(history.history['accuracy'], label='Training Accuracy')
+plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
+plt.xlabel('Epochs')
+plt.ylabel('Accuracy')
+plt.legend()
+plt.show()
+
+
+***Effect of batch-normalization on overfitting***
+
+#import tensorflow
+import tensorflow as tf
+from tensorflow.keras.datasets import mnist
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Flatten
+from tensorflow.keras.utils import to_categorical
+import matplotlib.pyplot as plt
+#import batch normalization
+from tensorflow.keras.layers import BatchNormalization
+
+#load mnist dataset
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+
+#normalize data
+x_train = x_train / 255.0
+x_test = x_test / 255.0
+
+#convert class labels to vectors
+y_train=to_categorical(y_train,10)
+y_test=to_categorical(y_test,10)
+
+#baseline mlp model
+model = Sequential([
+    Flatten(input_shape=(28, 28)),
+    Dense(128, activation='relu',input_shape=784),
+    BatchNormalization(),
+    Dense(64, activation='relu',input_shape=512),
+    BatchNormalization(),
+    Dense(10, activation='softmax')
+])
+model.compile(
+    optimizer='adam',
+    loss='categorical_crossentropy',
+    metrics=['accuracy']
+)
+
+#train model
+history = model.fit(
+    x_train, y_train,
+    epochs=20,
+    batch_size=128,
+    validation_split=0.2
+)
+
+#test the model
+test_loss, test_accuracy = model.evaluate(x_test, y_test)
+print("Test Accuracy:", test_accuracy)
+
+#plot the graph
+plt.plot(history.history['accuracy'], label='Training Accuracy')
+plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
+plt.xlabel('Epochs')
+plt.ylabel('Accuracy')
+plt.legend()
+plt.show()
+
+
+***Implementing all three together:***
+
+#import tensorflow
+import tensorflow as tf
+from tensorflow.keras.datasets import mnist
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Flatten
+from tensorflow.keras.utils import to_categorical
+import matplotlib.pyplot as plt
+
+from tensorflow.keras.layers import Dropout
+from tensorflow.keras.regularizers import l2
+from tensorflow.keras.layers import BatchNormalization
+
+
+
+#load mnist dataset
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+
+#normalize data
+x_train = x_train / 255.0
+x_test = x_test / 255.0
+
+#convert class labels to vectors
+y_train=to_categorical(y_train,10)
+y_test=to_categorical(y_test,10)
+
+#baseline mlp model
+model = Sequential([
+    Flatten(input_shape=(28, 28)),
+    Dense(128, activation='relu',input_shape=784,kernel_regularizer=l2(0.001)),
+    Dropout(0.5),
+    BatchNormalization(),
+    Dense(64, activation='relu',input_shape=512,kernel_regularizer=l2(0.001)),
+    Dropout(0.5),
+    BatchNormalization(),
+    Dense(10, activation='softmax')
+])
+model.compile(
+    optimizer='adam',
+    loss='categorical_crossentropy',
+    metrics=['accuracy']
+)
+
+#train model
+history = model.fit(
+    x_train, y_train,
+    epochs=20,
+    batch_size=128,
+    validation_split=0.2
+)
+
+#test the model
+test_loss, test_accuracy = model.evaluate(x_test, y_test)
+print("Test Accuracy:", test_accuracy)
+
+#plot the graph
+plt.plot(history.history['accuracy'], label='Training Accuracy')
+plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
+plt.xlabel('Epochs')
+plt.ylabel('Accuracy')
+plt.legend()
+plt.show()
