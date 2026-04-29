@@ -1,0 +1,76 @@
+Transfer learning using pre-trained CNN.
+
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torchvision import datasets, models, transforms
+from torch.utils.data import DataLoader
+
+from google.colab import drive
+drive.mount('/content/drive')
+
+Data-preprocessing
+
+data_dir = "/content/drive/MyDrive/DL dataset/dataset"
+
+transform = transforms.Compose([
+    transforms.Resize((224, 224)),
+    transforms.ToTensor()
+])
+
+train_data = datasets.ImageFolder(data_dir + "/train", transform=transform)
+val_data = datasets.ImageFolder(data_dir + "/validation", transform=transform)
+
+train_loader = DataLoader(train_data, batch_size=32, shuffle=True)
+val_loader = DataLoader(val_data, batch_size=32)
+
+num_classes = len(train_data.classes)
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+Load pre-trained model
+
+model = models.resnet18(pretrained=True)
+
+Freeze Base-layers
+
+
+for param in model.parameters():
+    param.requires_grad = False
+
+Replace Classifier
+
+model.fc = nn.Linear(model.fc.in_features, num_classes)
+model = model.to(device)
+
+Train classifier head
+
+criterion = nn.CrossEntropyLoss()
+optimizer = optim.Adam(model.parameters(), lr=0.001)
+
+def train_model(epochs):
+    for epoch in range(epochs):
+        model.train()
+        correct = 0
+        total = 0
+
+        for x, y in train_loader:
+            x, y = x.to(device), y.to(device)
+
+            optimizer.zero_grad()
+            out = model(x)
+            loss = criterion(out, y)
+            loss.backward()
+            optimizer.step()
+
+            _, pred = torch.max(out, 1)
+            correct += (pred == y).sum().item()
+            total += y.size(0)
+
+        print(f"Epoch {epoch+1}, Accuracy: {100*correct/total:.2f}%")
+
+
+train(model)
+
+Fine-tuning of selected layers
+
+#Unfreeze some layers
