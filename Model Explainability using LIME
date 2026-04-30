@@ -1,0 +1,109 @@
+pip install lime
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
+
+from lime.lime_tabular import LimeTabularExplainer
+
+
+STEP1:
+
+# Step 1: Load Dataset
+data = load_iris()
+
+df = pd.DataFrame(data.data, columns=data.feature_names)
+df["target"] = data.target
+
+print("Dataset:")
+print(df.head())
+
+STEP2:
+
+# Step 2: Split Features and Target
+X = df.drop("target", axis=1)
+y = df["target"]
+
+STEP3:
+
+# Step 3: Train-Test Split
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+STEP4:
+
+# Step 4: Train Random Forest Classifier
+model = RandomForestClassifier(
+    n_estimators=100,
+    max_depth=3,
+    random_state=42
+)
+
+model.fit(X_train, y_train)
+
+
+STEP5:
+
+# Step 5: Prediction and Accuracy
+y_pred = model.predict(X_test)
+
+accuracy = accuracy_score(y_test, y_pred)
+print("\nModel Accuracy:", accuracy)
+
+STEP6:
+
+# Step 6: Select One Test Sample for LIME Explanation
+sample_index = 0
+sample = X_test.iloc[sample_index]
+
+print("\nSelected Test Sample:")
+print(sample)
+
+actual_class = y_test.iloc[sample_index]
+predicted_class = model.predict([sample])[0]
+
+print("\nActual Class:", data.target_names[actual_class])
+print("Predicted Class:", data.target_names[predicted_class])
+
+STEP7:
+
+# Step 7: Create LIME Tabular Explainer
+explainer = LimeTabularExplainer(
+    training_data=X_train.values,
+    feature_names=X.columns,
+    class_names=data.target_names,
+    mode="classification"
+)
+
+STEP8:
+
+# Step 8: Apply LIME on Individual Prediction
+explanation = explainer.explain_instance(
+    data_row=sample.values,
+    predict_fn=model.predict_proba
+)
+
+STEP9:
+
+# Step 9: Print Feature Contributions
+print("\nLIME Feature Contributions:")
+for feature, contribution in explanation.as_list():
+    print(feature, ":", contribution)
+
+STEP10:
+
+# Step 10: Visualize LIME Explanation
+explanation.as_pyplot_figure()
+plt.title("LIME Explanation for Random Forest Prediction")
+plt.show()
+
+Additonal step:
+
+# Optional: Save LIME Explanation as HTML
+explanation.save_to_file("lime_explanation.html")
+print("\nLIME explanation saved as lime_explanation.html")
